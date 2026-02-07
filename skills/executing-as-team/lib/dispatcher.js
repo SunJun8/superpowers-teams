@@ -2,6 +2,13 @@
  * skills/executing-as-team/lib/dispatcher.js
  *
  * Task dispatcher for parallel Teammate execution
+ *
+ * NOTE: This module requires external API implementations:
+ * - createAgentTask(teammateId, config) - Claude Code Agent Teams API
+ * - createSubagent(config) - Subagent creation function
+ *
+ * In Claude Code environment, these are provided by the runtime.
+ * For other environments, implement stubs or mocks.
  */
 
 const { detectAgentTeamsMode } = require('../../scripts/teams-helpers/detect-mode');

@@ -2,6 +2,10 @@
  * skills/goal-alignment-monitor/lib/alert-system.js
  *
  * Alert and reporting system for goal alignment
+ *
+ * Error handling: Consistent pattern using Result objects
+ * - Success: { success: true, data: ... }
+ * - Failure: { success: false, error: ... }
  */
 
 class AlertSystem {

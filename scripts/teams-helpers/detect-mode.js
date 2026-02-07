@@ -23,7 +23,7 @@ function detectAgentTeamsMode() {
 /**
  * Check if we should use Teams mode
  * @param {Object} options - Configuration options
- * @returns {string} 'agent-teams' | 'subagent' | 'standard'
+ * @returns {string} 'agent-teams' | 'subagent'
  */
 function shouldUseTeamsMode(options = {}) {
   const detection = detectAgentTeamsMode();
