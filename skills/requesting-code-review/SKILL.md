@@ -1,6 +1,6 @@
 ---
 name: requesting-code-review
-description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
+description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements. In Teams mode, adds team context for goal alignment checking.
 ---
 
 # Requesting Code Review
@@ -8,6 +8,8 @@ description: Use when completing tasks, implementing major features, or before m
 Dispatch superpowers:code-reviewer subagent to catch issues before they cascade.
 
 **Core principle:** Review early, review often.
+
+**Teams Mode Extension:** When in Teams mode, include team context (task ID, Teammate, goal tags) for alignment-aware reviews.
 
 ## When to Request Review
 
@@ -103,3 +105,101 @@ You: [Fix progress indicators]
 - Request clarification
 
 See template at: requesting-code-review/code-reviewer.md
+
+---
+
+## Teams Mode Extension
+
+When in Teams mode (enabled by `writing-plans-for-teams`), code review includes additional team context for goal alignment checking.
+
+### Team Context Format
+
+```markdown
+**Team Context:**
+- Task ID: [from plan, e.g., "Task 2"]
+- Teammate: [Teammate number or ID, e.g., "Teammate 1"]
+- Goal Tags:
+  - architecture: [from design doc]
+  - style: [from design doc]
+  - testing: [from design doc]
+  - security: [optional]
+  - performance: [optional]
+- Dependencies: [task IDs this task depends on]
+```
+
+### Teams Mode Review Process
+
+1. **Add Team Context** to review request
+2. **Run Goal Alignment Check** using `goal-alignment-monitor`
+3. **Include Alignment Report** in review summary
+4. **Flag Misaligned Issues** as Critical if goals are violated
+
+### Example in Teams Mode
+
+```
+[Just completed Task 3 in Teams mode]
+
+You: Requesting code review with team context.
+
+BASE_SHA=$(git rev-parse HEAD~1)
+HEAD_SHA=$(git rev-parse HEAD)
+
+[Dispatch superpowers:code-reviewer subagent]
+  WHAT_WAS_IMPLEMENTED: JWT token generation and verification
+  PLAN_OR_REQUIREMENTS: Task 3 from docs/plans/auth-plan.md
+  BASE_SHA: a7981ec
+  HEAD_SHA: 3df7661
+  DESCRIPTION: Implemented generateToken() and verifyToken()
+
+  **Team Context:**
+  - Task ID: Task 3
+  - Teammate: Teammate 2
+  - Goal Tags:
+    - architecture: microservices
+    - style: functional
+    - testing: unit
+    - security: JWT
+
+[Oversight Agent runs alignment check...]
+  ✅ Architecture: Aligned (no service coupling)
+  ✅ Style: Aligned (pure functions)
+  ⚠️ Testing: Minor issue (coverage 75%, target 80%)
+  ✅ Security: Aligned (JWT implementation correct)
+
+[Code-reviewer subagent returns with alignment context]
+  Strengths: Clean functional implementation
+  Issues:
+    Minor: Test coverage 75% (goal: 80%)
+  Alignment Check:
+    Status: Partially Aligned
+    Issues: 1 (testing coverage)
+  Assessment: Ready to proceed
+
+You: [Add 2 more test cases to reach 80%]
+[Commit and continue]
+```
+
+### Integration with Goal Alignment
+
+When `goal-alignment-monitor` is active:
+- Review request includes goal tags
+- Oversight Agent checks alignment
+- Alignment report is included in review summary
+- Misaligned issues are flagged appropriately
+
+### Modified Review Template for Teams
+
+The `code-reviewer.md` template should include:
+
+```markdown
+**If in Teams mode:**
+
+1. Check Team Context section for goal tags
+2. Verify implementation aligns with stated goals:
+   - Architecture: Does it match the stated style?
+   - Code Style: Are patterns consistent with goal?
+   - Testing: Does coverage meet requirements?
+   - Security/Performance: Are requirements met?
+3. Flag any goal violations in Issues section
+4. Include alignment status in Assessment
+```
